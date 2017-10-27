@@ -7,7 +7,7 @@
 
 
 // Pin defined 
-#define DHTPIN 2 // DHT22 sensors reading pin
+#define DHTPIN 7 // DHT22 sensors reading pin
 
 // Temperature sensors  
 #define DHTTYPE DHT22 // DHT 22  (AM2302), AM2321
