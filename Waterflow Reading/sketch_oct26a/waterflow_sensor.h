@@ -1,3 +1,8 @@
+/*
+ * This library is created for waterflow reading, (calibration needed?)
+ *
+ */
+
 // inside sensor configuration 
 #ifndef WATERFLOW_SENSOR_H
 #define WATERFLOW_SENSOR_H
