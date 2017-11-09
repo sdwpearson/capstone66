@@ -3,11 +3,20 @@
 * Based on: FILIPEFLOP http://blog.filipeflop.com/wireless/esp8266-arduino-tutorial.html
 * Adapted by Marcelo Jose Rovai
 **************************************************************************/
+
+/* IN ORDER TO COMMUNICATE PROPERLY WITH SOFTWARE SERIAL:
+ *   You MUST change the baud rate lower. I used 9600 and 
+ *   it worked well enough. The ESP8266 comes at 115200 as 
+ *   standard which will only work on a hardware serial. Instead
+ *   use the command AT+CIOBAUD=9600 inside ExampleSketchInst1 to lower
+ *   the baud rate.
+ *   Source: https://arduino.stackexchange.com/questions/24156/how-to-change-baudrate-of-esp8266-12e-permanently
+ */
 #include <SoftwareSerial.h>
 
 //#define esp8266 Serial2
 #define CH_PD 4 
-#define speed8266 115200 // This is the speed that worked with my ESP8266
+#define speed8266 9600//115200 // This is the speed that worked with my ESP8266
  
 #define DEBUG true
  
@@ -26,8 +35,13 @@ void loop()
 {
   if (esp8266.available()) // check if 8266 is sending data
   {
-    if (esp8266.find("+IPD,"))
+    bool found = esp8266.find("+IPD,");
+    Serial.print("ESP8266 Available\n\r");
+    Serial.print(found);
+    Serial.print("\n\r");
+    if (found)
     {
+      Serial.print("+IPD\n\r");
       delay(300);
       int connectionId = esp8266.read() - 48;
  
@@ -54,14 +68,17 @@ void loop()
       cipSend += ",";
       cipSend += webpage.length();
       cipSend += "\r\n";
- 
+      
+      Serial.print("Sending CIPSEND \n\r");
       sendData(cipSend, 1000, DEBUG);
+      Serial.print("Sending Webpage\n\r");
       sendData(webpage, 1000, DEBUG);
  
       String closeCommand = "AT+CIPCLOSE=";
       closeCommand += connectionId; // append connection id
       closeCommand += "\r\n";
- 
+      
+      Serial.print("Closing connection\n\r");
       sendData(closeCommand, 3000, DEBUG);
     }
   }
@@ -72,7 +89,8 @@ void InitWifiModule()
 {
   sendData("AT+RST\r\n", 2000, DEBUG); // reset
   //sendData("AT+CWJAP=\"Network\",\"Password\"\r\n", 2000, DEBUG); //Connect network
-  sendData("AT+CWJAP=\"JB_Hillary\",\"nostrajibus\"\r\n", 2000, DEBUG); //Connect network
+  //sendData("AT+CWJAP=\"JB_Hillary\",\"nostrajibus\"\r\n", 2000, DEBUG); //Connect network
+  sendData("AT+CWJAP=\"ubcvisitor\",\"\"\r\n", 2000, DEBUG); //Connect network
   delay(3000);
   sendData("AT+CWMODE=1\r\n", 1000, DEBUG);
   sendData("AT+CIFSR\r\n", 1000, DEBUG); // Show IP Adress
