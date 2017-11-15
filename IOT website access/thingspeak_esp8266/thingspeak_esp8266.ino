@@ -31,8 +31,8 @@ DHT dht(DHTPIN, DHTTYPE);
 
 String apiKey = "HJAUCNEYALJY0VAK";     // replace with your channel's thingspeak WRITE API key
 
-String ssid="ubcvisitor";    // Wifi network SSID
-String password ="";  // Wifi network password
+String ssid="TELUS3205-2.4G";    // Wifi network SSID
+String password ="4gvheaypjg";  // Wifi network password
 
 boolean DEBUG=true;
 
@@ -100,16 +100,16 @@ void setup() {
   
   dht.begin();          // Start DHT sensor
   
-  espSerial.begin(115200);  // enable software serial
+  espSerial.begin(9600);  // enable software serial
                           // Your esp8266 module's speed is probably at 115200. 
                           // For this reason the first time set the speed to 115200 or to your esp8266 configured speed 
                           // and upload. Then change to 9600 and upload again
   
-  //espSerial.println("AT+RST");         // Enable this line to reset the module;
-  //showResponse(1000);
+  espSerial.println("AT+RST");         // Enable this line to reset the module;
+  showResponse(1000);
 
-  //espSerial.println("AT+UART_CUR=9600,8,1,0,0");    // Enable this line to set esp8266 serial speed to 9600 bps
-  //showResponse(1000);
+  espSerial.println("AT+UART_CUR=9600,8,1,0,0");    // Enable this line to set esp8266 serial speed to 9600 bps
+  showResponse(1000);
   
   
 
