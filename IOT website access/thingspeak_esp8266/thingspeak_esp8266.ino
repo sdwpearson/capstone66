@@ -31,8 +31,8 @@ DHT dht(DHTPIN, DHTTYPE);
 
 String apiKey = "HJAUCNEYALJY0VAK";     // replace with your channel's thingspeak WRITE API key
 
-String ssid="TELUS3205-2.4G";    // Wifi network SSID
-String password ="4gvheaypjg";  // Wifi network password
+String ssid="iPhone"; //"TELUS3205-2.4G";    // Wifi network SSID
+String password ="stewsphone"; //"4gvheaypjg";  // Wifi network password
 
 boolean DEBUG=true;
 

@@ -7,7 +7,7 @@
 #include "WProgram.h"
 #endif
 
-FlowSensors_pro default_flowsensor = {6.0f, 7.5f};
+FlowSensors_pro default_flowsensor = {6.0f, 7.5f, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
 
 // constructor
 Waterflowsensor::Waterflowsensor(unsigned int pin, FlowSensors_pro pro)
@@ -56,7 +56,10 @@ void Waterflowsensor::measure(unsigned long duration)
 	pulseCount = 0; // clean the pulse 
 	SREG = interrupts; // load the interrupt status
 
-	flowrate = frequency / properties_.k_factor;	// compute flowrate in L/min
+ unsigned int decile = floor(10.0f * frequency / (properties_.capacity * properties_.k_factor));
+ currentCorrection = properties_.k_factor / properties_.mFactor[min(decile, 9)];
+
+	flowrate = frequency / currentCorrection;	// compute flowrate in L/min
 	currentLitres = flowrate * seconds / 60.0f;		// compute current waterflow 
 	totalLitres += currentLitres; 		// compute the total waterflow 
 }

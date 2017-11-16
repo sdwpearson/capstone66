@@ -18,6 +18,7 @@ struct FlowSensors_pro
 {
 	double capacity; // max flow rate in L/min
 	double k_factor; // k_factor in (Pulse frequency / (L/min) )
+  double mFactor[10];   // < multiplicative correction factor near unity, "meter factor" (per decile of flow)
 };
 
 extern FlowSensors_pro default_flowsensor; //!< default sensor
@@ -31,6 +32,7 @@ class Waterflowsensor {
     double flowrate = 0.0f;
     double currentLitres = 0.0f;
     double totalLitres = 0.0f;
+    double currentCorrection;  
     unsigned long duration; 
 
   public:
