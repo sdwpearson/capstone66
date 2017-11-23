@@ -11,7 +11,7 @@
 /*================Initialization sensors===============*/
 Waterflowsensor watermeter(WATERSENSOR_PIN);
 
-const unsigned long duration = 2000;
+const unsigned long duration = 1000;
 
 void setup() {
   // Initialize a serial connection for reporting values to the host
