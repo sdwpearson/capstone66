@@ -1,0 +1,46 @@
+/**
+ * @file
+ *
+ * This is the main process for waterflow reading.  
+ *
+ */
+#include "waterflow_sensor.h"
+
+#define WATERSENSOR_PIN 2
+
+/*================Initialization sensors===============*/
+Waterflowsensor watermeter(WATERSENSOR_PIN);
+
+<<<<<<< HEAD
+const unsigned long duration = 1000;
+=======
+const unsigned long duration = 1000; //1s 
+>>>>>>> 9b5f8cf1b42597c4e8ed4d599195d9691757952d
+
+void setup() {
+  // Initialize a serial connection for reporting values to the host
+  Serial.begin(9600);
+
+  // enable a call to the 'interrupt service handler' (ISR) on every rising edge at the interrupt pin
+  // do this setup step for every ISR you have defined, depending on how many interrupts you use
+  attachInterrupt(INT0, WatersensorISR, RISING);
+
+  // Initialize waterflow sensor
+  watermeter.init();
+
+}
+
+void loop() {
+  // wait until the result updated 
+  delay(duration);
+
+  // compute the results 
+  watermeter.measure(duration);
+
+  // output some measurement result
+  Serial.println("Currently " + String(watermeter.getFlowrate()) + " l/min, " + String(watermeter.getTotalVolume())+ " L in total.");
+}
+
+void WatersensorISR() {
+	watermeter.pulseCounter();
+}

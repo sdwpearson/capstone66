@@ -5,10 +5,19 @@
  * It also push data to a public website for study and education purpose
  *
  */
- 
+
+/*====libraries included====*/
+// air temperature sensor DHT22, may have to delete DHT_U.h
+#include <DHT.h>
+// soil temperature sensor DS18B20
+#include <DallasTemperature.h>
+#include <OneWire.h>
+// WIFI ESP8266 
+#include <SoftwareSerial.h> 
+
 /*====*====*/
 /*====Pin configuration library====*/
-#include "configuration.h" 
+#include "configuration.h"
 
 /*====Obejct creation====*/
 //enum FSM workflow;
@@ -32,6 +41,16 @@ void showResponse(int waitTime){
           if (DEBUG) Serial.print(c);
       }
     }                   
+}
+
+/**
+ * @ Interrupt function for reading the water flow sensor
+ */
+void pulse()   //measure the quantity of square wave
+{
+  pulse_count++;
+  // Function that was derived to relate the pulse count to the volume of water
+  waterFlow = 0.219*pulse_count + 16.518;
 }
 
 /**
@@ -65,9 +84,11 @@ bool esp8266_begin(){
  * @ param value1 float - air humidity (# sigificant digits) in %
  * @ param value2 float - air temperature (# sigificant digits) in degree celsius 
  * @ param value3 float - soil temperature (# sigificant digits) in degree celsius 
+ * @ param value4 double - water volume in mL
+ * @ param value5 double - flow rate in L/min
  * @ return true if it is successful sending the actual data, else return false
  */
-bool thingspeak_write (float value1, float value2, float value3){
+bool thingspeak_write (float value1, float value2, float value3, double value4, double value5){
   // TCP connection 
   String cmd = "AT+CIPSTART=\"TCP\",\""; // TCP connection            
          cmd += host_address;  // "184.106.153.149" or api.thingspeak.com       
@@ -89,6 +110,10 @@ bool thingspeak_write (float value1, float value2, float value3){
          getstring += String(value2); // air temperature 
          getstring +="&field3=";
          getstring += String(value3); // soil temperature 
+         getstring +="&field4=";
+         getstring += String(value4); // water volume (mL)
+         getstring +="&field5=";
+         getstring += String(value5); // flow_rate (L/min) 
          // ...
          getstring += "\r\n\r\n"; // end string
    
@@ -126,6 +151,8 @@ void setup() {
  // start soil temperatue sensor 
  DS18B20.begin(); 
  // start water flow sensor 
+ waterFlow = 0;
+ attachInterrupt(0, pulse, RISING);  //DIGITAL Pin 2: Interrupt 0
 
  // enable software serial
  espSerial.begin(9600);
@@ -174,15 +201,40 @@ void loop() {
       }
       else{
         if (DEBUG) Serial.println("SOIL_Temp="+String(soil_temperature)+" *C");
+        current_state = WATER_FLOW;
+      }
+      break;
+    
+    case WATER_FLOW:
+      // Get the current time in s
+      systemTime = millis()/1000;
+      
+      // Calculate the Flow rate
+      // L/min = (delta volume (mL) / delta time (s)) * 60 secs/min * 1 L/1000 mL
+      Flow_rate = ((waterFlow-waterFlow_old)/(systemTime - systemTime_old))/1000;
+      
+      // Check if any reads failed and exit early (to try again) else transmit data
+      if(waterFlow < 0){
+         current_state = WATER_FLOW;
+      }
+      else{
+        if (DEBUG) {
+          Serial.println("WATER_VOLUME="+String(waterFlow)+" mL");
+          Serial.println("FLOW_RATE="+String(Flow_rate)+" L/min");
+        }
         current_state = DATA_TRANSMISSION;
       }
+      // Keep track of old times and water volumes to compute the flow rate
+      // Also use these in the data transmission so that it is the same as what's printed in DEBUG
+      systemTime_old = systemTime;
+      waterFlow_old = waterFlow;
       break;
 
     case DATA_TRANSMISSION:
       // begin esp8266 and connect it to wifi
       if(esp8266_begin()){
         // data transimission 
-        bool done = thingspeak_write(air_humidity, air_temperature, soil_temperature);
+        bool done = thingspeak_write(air_humidity, air_temperature, soil_temperature, waterFlow_old, Flow_rate);
         if(done){
           current_state = SLEEP_MODE;
           delay(2000);

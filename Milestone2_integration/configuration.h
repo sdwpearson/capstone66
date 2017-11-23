@@ -2,20 +2,12 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
-/*====libraries included====*/
-// air temperature sensor DHT22
-#include "DHT.h"
-// soil temperauter sensor DS18B20
-#include <OneWire.h> 
-#include <DallasTemperature.h>
-// WIFI ESP8266 
-#include <SoftwareSerial.h>
-
 /*====Pin defined====*/
 #define DHTPIN 7 // DHT22 sensors reading pin
 #define DS18B20PIN 8 // DS18B20 sensor reading pin 
-#define WIFI_RX 2 // arduino RX pin 2 for wifi
-#define WIFI_TX 3 // arudino TX pin 3 for wifi
+#define WIFI_RX 3 // arduino RX pin 2 for wifi // MOVED SOFTWARE SERIAL PORTS TO MAKE ROOM FOR INTERRUPT INPUT
+#define WIFI_TX 4 // arudino TX pin 3 for wifi
+#define WATERFLOW 2 // Attached to interrupt 0
 
 // air temperature sensors  
 #define DHTTYPE DHT22 // DHT 22  (AM2302), AM2321
@@ -31,6 +23,12 @@ boolean DEBUG = true;
 float air_humidity;
 float air_temperature;
 float soil_temperature;
+double waterFlow;
+double waterFlow_old;
+double systemTime=0;
+double systemTime_old=0;
+double Flow_rate;
+int pulse_count=0;
 
 /*====Finite state machine====*/
 typedef enum {
