@@ -23,11 +23,11 @@ boolean DEBUG = true;
 float air_humidity;
 float air_temperature;
 float soil_temperature;
-double waterFlow;
-double waterFlow_old;
+double waterFlow=0;
+double waterFlow_old=0;
 double systemTime=0;
 double systemTime_old=0;
-double Flow_rate;
+double Flow_rate=0;
 int pulse_count=0;
 
 /*====Finite state machine====*/

@@ -205,13 +205,18 @@ void loop() {
       }
       break;
     
+    // NOTE: Might have some issues integrating with sleep because of it is idle.
+    //       If so, there is an EEPROM on board we can write to:
+    //       https://www.arduino.cc/en/Reference/EEPROM
+    //       Also need to watch out for the interrupts on pin2 waking it from sleep.
     case WATER_FLOW:
       // Get the current time in s
       systemTime = millis()/1000;
       
       // Calculate the Flow rate
       // L/min = (delta volume (mL) / delta time (s)) * 60 secs/min * 1 L/1000 mL
-      Flow_rate = ((waterFlow-waterFlow_old)/(systemTime - systemTime_old))/1000;
+      // Serial.println("WaterFlow "+String(waterFlow)+" waterFlow_old "+String(waterFlow_old)+" systemTime "+String(systemTime)+" systemTime_old "+String(systemTime_old)); // For Debug
+      Flow_rate = ((waterFlow-waterFlow_old)/(systemTime - systemTime_old))*60/1000;
       
       // Check if any reads failed and exit early (to try again) else transmit data
       if(waterFlow < 0){
@@ -219,8 +224,8 @@ void loop() {
       }
       else{
         if (DEBUG) {
-          Serial.println("WATER_VOLUME="+String(waterFlow)+" mL");
           Serial.println("FLOW_RATE="+String(Flow_rate)+" L/min");
+          Serial.println("WATER_VOLUME="+String(waterFlow)+" mL");
         }
         current_state = DATA_TRANSMISSION;
       }
