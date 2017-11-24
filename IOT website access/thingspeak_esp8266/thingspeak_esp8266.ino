@@ -11,7 +11,7 @@
 
 // Code to use SoftwareSerial
 #include <SoftwareSerial.h>
-SoftwareSerial espSerial =  SoftwareSerial(2,3);      // arduino RX pin=2  arduino TX pin=3    connect the arduino RX pin to esp8266 module TX pin   -  connect the arduino TX pin to esp8266 module RX pin
+SoftwareSerial espSerial =  SoftwareSerial(3,4);      // arduino RX pin=2  arduino TX pin=3    connect the arduino RX pin to esp8266 module TX pin   -  connect the arduino TX pin to esp8266 module RX pin
 
 
 
@@ -31,8 +31,10 @@ DHT dht(DHTPIN, DHTTYPE);
 
 String apiKey = "HJAUCNEYALJY0VAK";     // replace with your channel's thingspeak WRITE API key
 
-String ssid="iPhone"; //"TELUS3205-2.4G";    // Wifi network SSID
-String password ="stewsphone"; //"4gvheaypjg";  // Wifi network password
+//String ssid="iPhone"; //"TELUS3205-2.4G";    // Wifi network SSID
+//String password ="stewsphone"; //"4gvheaypjg";  // Wifi network password
+const String ssid= "Albert's iPhone";//"iPhone"; //"TELUS3205-2.4G";    // Wifi network SSID
+const String password = "88888888";//"stewsphone"; //"4gvheaypjg";  // Wifi network password
 
 boolean DEBUG=true;
 
@@ -142,7 +144,7 @@ void loop() {
   
     
   // thingspeak needs 15 sec delay between updates,     
-  delay(20000);  
+  delay(5000);  
 }
 
 

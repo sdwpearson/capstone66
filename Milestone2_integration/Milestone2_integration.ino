@@ -15,7 +15,6 @@
 // WIFI ESP8266 
 #include <SoftwareSerial.h> 
 
-/*====*====*/
 /*====Pin configuration library====*/
 #include "configuration.h"
 
@@ -25,7 +24,7 @@ FSM current_state = INITIAL_STATE;
 DHT dht(DHTPIN, DHTTYPE);  // create an instance for DHT sensor 
 OneWire oneWire(DS18B20PIN);  // Setup a oneWire instance to communicate with any OneWire devices  
 DallasTemperature DS18B20(&oneWire); // Pass our oneWire reference to Dallas Temperature.
-SoftwareSerial espSerial(2,3); // create an instance for wifi chip esp8266
+SoftwareSerial espSerial(WIFI_RX,WIFI_TX); // create an instance for wifi chip esp8266
 
 /*====Function definitions====*/
 /**
@@ -59,16 +58,15 @@ void pulse()   //measure the quantity of square wave
  */
 bool esp8266_begin(){
    
-   espSerial.println("AT+RST"); // reset ESP8266
+   espSerial.println("AT+RST");         // Enable this line to reset the module;
    showResponse(1000);
-   espSerial.println("AT+UART_CUR=9600,8,1,0,0"); // Enable this line to set esp8266 serial speed to 9600 bps
+   espSerial.println("AT+UART_CUR=9600,8,1,0,0");    // Enable this line to set esp8266 serial speed to 9600 bps
    showResponse(1000);
-   //conect to network
-   espSerial.println("AT+CWMODE=1"); // set esp8266 as a client
+   espSerial.println("AT+CWMODE=1");   // set esp8266 as client
    showResponse(1000);
-   espSerial.println("AT+CWJAP=\""+ssid+"\",\""+password+"\""); // set your home router SSID and password
-   showResponse(5000); //wait for 5 seconds
-   
+   espSerial.println("AT+CWJAP=\""+ssid+"\",\""+password+"\"");  // set your home router SSID and password
+   showResponse(5000);
+
    if (espSerial.find("OK")){
     if(DEBUG) Serial.println("Connected to Access Point");  
     return true;
@@ -105,9 +103,9 @@ bool thingspeak_write (float value1, float value2, float value3, double value4, 
          getstring += apiKey;
          // get parameters in string
          getstring +="&field1=";
-         getstring += String(value1); // air humidity
+         getstring += String(value1); // air temperature 
          getstring +="&field2=";
-         getstring += String(value2); // air temperature 
+         getstring += String(value2); // air humidity
          getstring +="&field3=";
          getstring += String(value3); // soil temperature 
          getstring +="&field4=";
@@ -145,7 +143,6 @@ bool thingspeak_write (float value1, float value2, float value3, double value4, 
 void setup() {
  // start serial port 
  Serial.begin(9600); 
-
  // start air temperature sensor
  dht.begin(); 
  // start soil temperatue sensor 
@@ -153,15 +150,18 @@ void setup() {
  // start water flow sensor 
  waterFlow = 0;
  attachInterrupt(0, pulse, RISING);  //DIGITAL Pin 2: Interrupt 0
-
  // enable software serial
  espSerial.begin(9600);
+ //esp8266_begin();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   switch(current_state){
     case INITIAL_STATE: // wake up the arduino and starts all sensors 
+      air_humidity = 0.0f;
+      air_temperature = 0.0f;
+      soil_temperature = 0.0f; 
       current_state = AIR_TEMPERATURE;
       break;
     
@@ -204,12 +204,14 @@ void loop() {
         current_state = WATER_FLOW;
       }
       break;
-    
-    // NOTE: Might have some issues integrating with sleep because of it is idle.
-    //       If so, there is an EEPROM on board we can write to:
-    //       https://www.arduino.cc/en/Reference/EEPROM
-    //       Also need to watch out for the interrupts on pin2 waking it from sleep.
+
+   
     case WATER_FLOW:
+      // NOTE: Might have some issues integrating with sleep because of it is idle.
+      //       If so, there is an EEPROM on board we can write to:
+      //       https://www.arduino.cc/en/Reference/EEPROM
+      //       Also need to watch out for the interrupts on pin2 waking it from sleep.
+      
       // Get the current time in s
       systemTime = millis()/1000;
       
@@ -239,7 +241,7 @@ void loop() {
       // begin esp8266 and connect it to wifi
       if(esp8266_begin()){
         // data transimission 
-        bool done = thingspeak_write(air_humidity, air_temperature, soil_temperature, waterFlow_old, Flow_rate);
+        bool done = thingspeak_write(air_temperature, air_humidity, soil_temperature, waterFlow_old, Flow_rate);
         if(done){
           current_state = SLEEP_MODE;
           delay(2000);
@@ -253,6 +255,13 @@ void loop() {
          current_state = DATA_TRANSMISSION; // if it fails, then try to connect it again;
          delay(2000);
       }
+      break;
+
+     case SLEEP_MODE:
+      // fake sleep for 3s
+      if (DEBUG) Serial.println("Arduino sleeps");
+      delay(15000);
+      current_state = INITIAL_STATE;
       break;
       
     default:
