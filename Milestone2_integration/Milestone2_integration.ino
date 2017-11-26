@@ -58,8 +58,8 @@ void pulse()   //measure the quantity of square wave
  */
 bool esp8266_begin(){
    
-   espSerial.println("AT+RST");         // Enable this line to reset the module;
-   showResponse(1000);
+//   espSerial.println("AT+RST");         // Enable this line to reset the module;
+//   showResponse(1000);
    espSerial.println("AT+UART_CUR=9600,8,1,0,0");    // Enable this line to set esp8266 serial speed to 9600 bps
    showResponse(1000);
    espSerial.println("AT+CWMODE=1");   // set esp8266 as client
