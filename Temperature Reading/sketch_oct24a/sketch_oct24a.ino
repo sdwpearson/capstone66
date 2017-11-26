@@ -40,5 +40,5 @@ void loop() {
   Serial.print(f);
   Serial.print(" *F\t\n");
 
-  delay(500); // wait for two seconds 
+  delay(2000); // wait for two seconds 
 }

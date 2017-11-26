@@ -5,8 +5,8 @@
 /*====Pin defined====*/
 #define DHTPIN 7 // DHT22 sensors reading pin
 #define DS18B20PIN 8 // DS18B20 sensor reading pin 
-#define WIFI_RX 3 // arduino RX pin 2 for wifi // MOVED SOFTWARE SERIAL PORTS TO MAKE ROOM FOR INTERRUPT INPUT
-#define WIFI_TX 4 // arudino TX pin 3 for wifi
+#define WIFI_RX 4 // arduino RX pin 2 for wifi // MOVED SOFTWARE SERIAL PORTS TO MAKE ROOM FOR INTERRUPT INPUT
+#define WIFI_TX 5 // arudino TX pin 3 for wifi
 #define WATERFLOW 2 // Attached to interrupt 0
 
 // air temperature sensors  
@@ -14,8 +14,8 @@
 
 // WIFI constants  
 const String apiKey = "HJAUCNEYALJY0VAK"; // thingspeak WRITE API key
-const String ssid= "iPhone"; //"TELUS3205-2.4G";    // Wifi network SSID
-const String password = "stewsphone"; //"4gvheaypjg";  // Wifi network password
+const String ssid= "Albert's iPhone";//"Albert's iPhone";//"iPhone"; //"TELUS3205-2.4G";    // Wifi network SSID
+const String password = "88888888"; //"88888888";//"stewsphone"; //"4gvheaypjg";  // Wifi network password
 const String host_address = "184.106.153.149"; //  api.thingspeak.com
 
 // global variables 
@@ -28,7 +28,7 @@ double waterFlow_old=0;
 double systemTime=0;
 double systemTime_old=0;
 double Flow_rate=0;
-int pulse_count=0;
+volatile int pulse_count=0;
 
 /*====Finite state machine====*/
 typedef enum {

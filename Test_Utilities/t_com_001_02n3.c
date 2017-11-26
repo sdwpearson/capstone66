@@ -1,4 +1,3 @@
-
 /* Arduino+esp8266 thingSpeak example  
  * Example name = "Write temperature and humidity to Thingspeak channel"
  * Created by Ilias Lamprou
@@ -11,7 +10,7 @@
 
 // Code to use SoftwareSerial
 #include <SoftwareSerial.h>
-SoftwareSerial espSerial =  SoftwareSerial(3,4);      // arduino RX pin=2  arduino TX pin=3    connect the arduino RX pin to esp8266 module TX pin   -  connect the arduino TX pin to esp8266 module RX pin
+SoftwareSerial espSerial =  SoftwareSerial(2,3);      // arduino RX pin=2  arduino TX pin=3    connect the arduino RX pin to esp8266 module TX pin   -  connect the arduino TX pin to esp8266 module RX pin
 
 
 
@@ -28,13 +27,10 @@ SoftwareSerial espSerial =  SoftwareSerial(3,4);      // arduino RX pin=2  ardui
 #define DHTTYPE DHT22 
 DHT dht(DHTPIN, DHTTYPE);
 
-
 String apiKey = "HJAUCNEYALJY0VAK";     // replace with your channel's thingspeak WRITE API key
 
-//String ssid="iPhone"; //"TELUS3205-2.4G";    // Wifi network SSID
-//String password ="stewsphone"; //"4gvheaypjg";  // Wifi network password
-const String ssid= "Albert's iPhone";//"iPhone"; //"TELUS3205-2.4G";    // Wifi network SSID
-const String password = "88888888";//"stewsphone"; //"4gvheaypjg";  // Wifi network password
+String ssid="TELUS3205-2.4G";    // Wi-Fi network SSID
+String password ="4gvheaypjg";  // Wi-Fi network password
 
 boolean DEBUG=true;
 
@@ -47,8 +43,7 @@ void showResponse(int waitTime){
         c=espSerial.read();
         if (DEBUG) Serial.print(c);
       }
-    }
-                   
+    }                   
 }
 
 //========================================================================
@@ -62,7 +57,6 @@ boolean thingSpeakWrite(float value1, float value2){
     if (DEBUG) Serial.println("AT+CIPSTART error");
     return false;
   }
-  
   
   String getStr = "GET /update?api_key=";   // prepare GET string
   getStr += apiKey;
@@ -112,21 +106,14 @@ void setup() {
 
   espSerial.println("AT+UART_CUR=9600,8,1,0,0");    // Enable this line to set esp8266 serial speed to 9600 bps
   showResponse(1000);
-  
-  
-
   espSerial.println("AT+CWMODE=1");   // set esp8266 as client
   showResponse(1000);
 
   espSerial.println("AT+CWJAP=\""+ssid+"\",\""+password+"\"");  // set your home router SSID and password
-  showResponse(5000);
-
-  
+  showResponse(5000); 
 
    if (DEBUG)  Serial.println("Setup completed");
 }
-
-
 // ====================================================================== loop
 void loop() {
 
@@ -144,9 +131,5 @@ void loop() {
   
     
   // thingspeak needs 15 sec delay between updates,     
-  delay(5000);  
+  delay(20000);  
 }
-
-
-
-
