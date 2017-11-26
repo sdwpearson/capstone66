@@ -239,6 +239,7 @@ void loop() {
 
     case DATA_TRANSMISSION:
       // begin esp8266 and connect it to wifi
+      //noInterrupts(); // disable interrput 
       if(esp8266_begin()){
         // data transimission 
         bool done = thingspeak_write(air_temperature, air_humidity, soil_temperature, waterFlow_old, Flow_rate);
@@ -255,6 +256,7 @@ void loop() {
          current_state = DATA_TRANSMISSION; // if it fails, then try to connect it again;
          delay(2000);
       }
+      //interrupts(); // enable interrupt 
       break;
 
      case SLEEP_MODE:
