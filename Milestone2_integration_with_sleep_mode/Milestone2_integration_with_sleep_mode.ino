@@ -9,6 +9,7 @@
 /*====libraries included====*/
 // air temperature sensor DHT22, may have to delete DHT_U.h
 #include <DHT.h>
+#include "Arduino.h"
 // soil temperature sensor DS18B20
 #include <DallasTemperature.h>
 #include <OneWire.h>
@@ -151,6 +152,7 @@ ISR(WDT_vect) {
     // implement a counter the can set the f_wdt to true if
     // the watchdog cycle needs to run longer than the maximum of eight seconds.
     f_wdt=1;
+    counter += 1;
   }
 }
 
@@ -201,7 +203,7 @@ void setupWatchDogTimer() {
   WDTCSR |= (1<<WDCE) | (1<<WDE);
 
   // set new watchdog timeout prescaler value
-  WDTCSR  = (1<<WDP3) | (0<<WDP2) | (0<<WDP1) | (1<<WDP0); // 1024K cycles or 8.0 seconds
+  WDTCSR  = (0<<WDP3) | (1<<WDP2) | (1<<WDP1) | (1<<WDP0); // 1024K cycles or 8.0 seconds
 
   // Enable the WD interrupt (note: no reset).
   WDTCSR |= _BV(WDIE);
@@ -221,6 +223,7 @@ void setup() {
  // enable software serial
  espSerial.begin(9600);
  //esp8266_begin();
+ setupWatchDogTimer();
 }
 
 void loop() {
@@ -331,23 +334,25 @@ void loop() {
 
      case SLEEP_MODE:
       // Wait until the watchdog have triggered a wake up.
-      if(f_wdt != 1) break;
+      if(f_wdt != 1){ return;}
+      if(DEBUG)
+        Serial.println("past f_wdt!=1");
+      if(DEBUG)
+        Serial.println("Sleep mode woke up");
       // exit sleep mode after the sleep duration 
-      if(counter == sleep_duration){
+      if(counter >= 2){
+        f_wdt = 0;
+        counter = 0;
         current_state = INITIAL_STATE;
-        break;
+        if(DEBUG) Serial.println("FLOW_RATE="+String(Flow_rate)+" L/min");
+        return;
         }
-      counter += 1;
       // clear the flag so we can run above code again after the MCU wake up
       f_wdt = 0;
       // Re-enter sleep mode.
       enterSleep();
-
-      /* //fake sleep mode
-        // fake sleep for 3s
-//      if (DEBUG) Serial.println("Arduino sleeps");
-//      delay(150);
-//      current_state = INITIAL_STATE;*/
+      if(DEBUG)
+        Serial.println("Returned from sleep mode");
       break;
       
     default:
