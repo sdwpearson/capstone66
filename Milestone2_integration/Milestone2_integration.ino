@@ -245,15 +245,17 @@ void loop() {
         bool done = thingspeak_write(air_temperature, air_humidity, soil_temperature, waterFlow_old, Flow_rate);
         if(done){
           current_state = SLEEP_MODE;
-          delay(2000);
+          //delay(2000);
         }
         else{
           current_state = DATA_TRANSMISSION;
+          //current_state = SLEEP_MODE;
           delay(2000);
         }
       }
       else{
          current_state = DATA_TRANSMISSION; // if it fails, then try to connect it again;
+         //current_state = SLEEP_MODE;
          delay(2000);
       }
       //interrupts(); // enable interrupt 
@@ -262,7 +264,7 @@ void loop() {
      case SLEEP_MODE:
       // fake sleep for 3s
       if (DEBUG) Serial.println("Arduino sleeps");
-      delay(15000);
+      delay(150);
       current_state = INITIAL_STATE;
       break;
       

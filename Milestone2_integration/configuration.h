@@ -14,8 +14,8 @@
 
 // WIFI constants  
 const String apiKey = "HJAUCNEYALJY0VAK"; // thingspeak WRITE API key
-const String ssid= "Albert's iPhone";//"Albert's iPhone";//"iPhone"; //"TELUS3205-2.4G";    // Wifi network SSID
-const String password = "88888888"; //"88888888";//"stewsphone"; //"4gvheaypjg";  // Wifi network password
+const String ssid= "iPhone";//"Albert's iPhone";//"iPhone"; //"TELUS3205-2.4G";    // Wifi network SSID
+const String password = "stewsphone"; //"88888888";//"stewsphone"; //"4gvheaypjg";  // Wifi network password
 const String host_address = "184.106.153.149"; //  api.thingspeak.com
 
 // global variables 
