@@ -19,11 +19,11 @@
 #include <SoftwareSerial.h>
 
 //#define esp8266 Serial2
-#define CH_PD 4           // Pin 4 is CH_PD on ESP8266
+#define CH_PD 6           // Pin 4 is CH_PD on ESP8266
 #define speed8266 9600 // This is the speed that worked with my ESP8266
 
 // software serial #1: RX = digital pin 2, TX = digital pin 3
-SoftwareSerial esp8266(2, 3);
+SoftwareSerial esp8266(4, 5);
 
 void setup() 
 {

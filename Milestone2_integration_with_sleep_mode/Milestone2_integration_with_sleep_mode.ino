@@ -14,6 +14,10 @@
 #include <OneWire.h>
 // WIFI ESP8266 
 #include <SoftwareSerial.h> 
+// sleep mode
+#include <avr/sleep.h>
+#include <avr/power.h>
+#include <avr/wdt.h>
 
 /*====Pin configuration library====*/
 #include "configuration.h"
@@ -139,6 +143,70 @@ bool thingspeak_write (float value1, float value2, float value3, double value4, 
   return true; 
 }
 
+/**
+ * @ Watchdog Interrupt Service. This is executed when watchdog timed out. 
+ */
+ISR(WDT_vect) {
+  if(f_wdt == 0) {
+    // implement a counter the can set the f_wdt to true if
+    // the watchdog cycle needs to run longer than the maximum of eight seconds.
+    f_wdt=1;
+  }
+}
+
+/**
+ * @ Enters the arduino into sleep mode.
+ */
+void enterSleep() {
+  // There are five different sleep modes in order of power saving:
+  // SLEEP_MODE_IDLE - the lowest power saving mode
+  // SLEEP_MODE_ADC
+  // SLEEP_MODE_PWR_SAVE
+  // SLEEP_MODE_STANDBY
+  // SLEEP_MODE_PWR_DOWN - the highest power saving mode
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+  sleep_enable();
+  // Now enter sleep mode.
+  sleep_mode();
+  // The program will continue from here after the WDT timeout
+  // First thing to do is disable sleep.
+  sleep_disable();
+  // Re-enable the peripherals.
+  power_all_enable();
+}
+
+/**
+ * @ setup the watch dog timer (WDT)
+ */
+void setupWatchDogTimer() {
+  
+  // MCUSR – MCU Status Register
+  // The MCU Status Register provides information on which reset source caused an MCU reset.
+  // MCUSR Bit 3 – WDRF: Watchdog System Reset Flag
+  // This bit is set if a Watchdog System Reset occurs. The bit is reset by a Power-on Reset, or by writing a logic zero to the flag.
+
+  // Clear the reset flag on the MCUSR, the WDRF bit (bit 3).
+  MCUSR &= ~(1<<WDRF);
+
+  // WDTCSR Bit 4 – WDCE: Watchdog Change Enable
+  // This bit is used in timed sequences for changing WDE and prescaler bits. To clear the WDE bit, and/or change the prescaler bits, WDCE must be set.  
+  // Once written to one, hardware will clear WDCE after four clock cycles.
+  
+  // WDTCSR Bit 3 – WDE: Watchdog System Reset Enable
+  // WDE is overridden by WDRF in MCUSR. This means that WDE is always set when WDRF is set. To clear
+  // WDE, WDRF must be cleared first. This feature ensures multiple resets during conditions causing failure, and a
+  // safe start-up after the failure
+
+  // In order to change WDE or the pre-scaler, we need to set WDCE (This will allow updates for 4 clock cycles).
+  WDTCSR |= (1<<WDCE) | (1<<WDE);
+
+  // set new watchdog timeout prescaler value
+  WDTCSR  = (1<<WDP3) | (0<<WDP2) | (0<<WDP1) | (1<<WDP0); // 1024K cycles or 8.0 seconds
+
+  // Enable the WD interrupt (note: no reset).
+  WDTCSR |= _BV(WDIE);
+}
+
 /*====Initialization====*/
 void setup() {
  // start serial port 
@@ -262,10 +330,24 @@ void loop() {
       break;
 
      case SLEEP_MODE:
-      // fake sleep for 3s
-      if (DEBUG) Serial.println("Arduino sleeps");
-      delay(150);
-      current_state = INITIAL_STATE;
+      // Wait until the watchdog have triggered a wake up.
+      if(f_wdt != 1) break;
+      // exit sleep mode after the sleep duration 
+      if(counter == sleep_duration){
+        current_state = INITIAL_STATE;
+        break;
+        }
+      counter += 1;
+      // clear the flag so we can run above code again after the MCU wake up
+      f_wdt = 0;
+      // Re-enter sleep mode.
+      enterSleep();
+
+      /* //fake sleep mode
+        // fake sleep for 3s
+//      if (DEBUG) Serial.println("Arduino sleeps");
+//      delay(150);
+//      current_state = INITIAL_STATE;*/
       break;
       
     default:

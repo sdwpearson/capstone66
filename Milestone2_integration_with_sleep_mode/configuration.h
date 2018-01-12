@@ -30,6 +30,12 @@ double systemTime_old=0;
 double Flow_rate=0;
 volatile int pulse_count=0;
 
+
+// watchdog variables
+volatile int f_wdt = 1;  // This variable is made volatile because it is changed inside an interrupt function
+int counter = 0;
+const int sleep_duration = 75; // the maximum sleep time for wdt is 8s, 10mins/8sec = 75
+
 /*====Finite state machine====*/
 typedef enum {
   INITIAL_STATE, 
