@@ -11,7 +11,7 @@ void setup() {
 	Serial.println("Vane Value\tDirection\tHeading"); 
 } 
 
-voidloop() { 
+void loop() { 
 	VaneValue = analogRead(A4); 
 	Direction = map(VaneValue, 0, 1023, 0, 360); 
 	CalDirection = Direction + Offset; 
