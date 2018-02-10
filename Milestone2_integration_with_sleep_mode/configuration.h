@@ -5,8 +5,8 @@
 /*====Pin defined====*/
 #define DHTPIN 7 // DHT22 sensors reading pin
 #define DS18B20PIN 8 // DS18B20 sensor reading pin 
-#define WIFI_RX 4 // arduino RX pin 2 for wifi // MOVED SOFTWARE SERIAL PORTS TO MAKE ROOM FOR INTERRUPT INPUT
-#define WIFI_TX 5 // arudino TX pin 3 for wifi
+#define WIFI_RX 4 // arduino RX pin 4 for wifi // MOVED SOFTWARE SERIAL PORTS TO MAKE ROOM FOR INTERRUPT INPUT
+#define WIFI_TX 5 // arudino TX pin 5 for wifi
 #define WATERFLOW 2 // Attached to interrupt 0
 
 // air temperature sensors  
