@@ -32,7 +32,7 @@ void setup()
     ; // wait for serial port to connect. Needed for native USB port only
   }
   esp8266.begin (speed8266); 
-  reset8266(); // Pin CH_PD need a reset before start communication
+  //reset8266(); // Pin CH_PD need a reset before start communication
 }
 
 void loop() 
