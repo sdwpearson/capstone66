@@ -29,6 +29,9 @@ DHT dht(DHTPIN, DHTTYPE);
 
 String apiKey = "HJAUCNEYALJY0VAK";     // replace with your channel's thingspeak WRITE API key
 
+String ssid="TELUS3205-2.4G";    // Wi-Fi network SSID
+String password ="4gvheaypjg";  // Wi-Fi network password
+
 boolean DEBUG=true;
 
 //======================================================================== showResponce
@@ -45,11 +48,12 @@ void showResponse(int waitTime){
 
 //========================================================================
 boolean thingSpeakWrite(float value1, float value2){
-  String cmd = "AT+NETOPEN=”TCP”,80";                  // TCP connection
-  cmd += "AT+TCPCONNECT=”192.168.0.1”,80";                               // api.thingspeak.com
-  3gshield.println(cmd);
+  String cmd = "AT+CIPSTART=\"TCP\",\"";                  // TCP connection
+  cmd += "184.106.153.149";                               // api.thingspeak.com
+  cmd += "\",80";
+  espSerial.println(cmd);
   if (DEBUG) Serial.println(cmd);
-  if(3gshield.find("Error")){
+  if(espSerial.find("Error")){
     if (DEBUG) Serial.println("AT+CIPSTART error");
     return false;
   }
@@ -67,20 +71,20 @@ boolean thingSpeakWrite(float value1, float value2){
   getStr += "\r\n\r\n";
 
   // send data length
-  cmd = "AT+TCPWRITE=";
+  cmd = "AT+CIPSEND=";
   cmd += String(getStr.length());
-  3gshield.println(cmd);
+  espSerial.println(cmd);
   if (DEBUG)  Serial.println(cmd);
   
   delay(100);
-  if(3gshield.find(">")){
-    3gshield.print(getStr);
+  if(espSerial.find(">")){
+    espSerial.print(getStr);
     if (DEBUG)  Serial.print(getStr);
   }
   else{
-    3gshield.println("AT+NETCLOSE");
+    espSerial.println("AT+CIPCLOSE");
     // alert user
-    if (DEBUG)   Serial.println("AT+NETCLOSE");
+    if (DEBUG)   Serial.println("AT+CIPCLOSE");
     return false;
   }
   return true;
@@ -92,7 +96,21 @@ void setup() {
   
   dht.begin();          // Start DHT sensor
   
-  3gshield.begin(9600);  
+  espSerial.begin(9600);  // enable software serial
+                          // Your esp8266 module's speed is probably at 115200. 
+                          // For this reason the first time set the speed to 115200 or to your esp8266 configured speed 
+                          // and upload. Then change to 9600 and upload again
+  
+  espSerial.println("AT+RST");         // Enable this line to reset the module;
+  showResponse(1000);
+
+  espSerial.println("AT+UART_CUR=9600,8,1,0,0");    // Enable this line to set esp8266 serial speed to 9600 bps
+  showResponse(1000);
+  espSerial.println("AT+CWMODE=1");   // set esp8266 as client
+  showResponse(1000);
+
+  espSerial.println("AT+CWJAP=\""+ssid+"\",\""+password+"\"");  // set your home router SSID and password
+  showResponse(5000); 
 
    if (DEBUG)  Serial.println("Setup completed");
 }

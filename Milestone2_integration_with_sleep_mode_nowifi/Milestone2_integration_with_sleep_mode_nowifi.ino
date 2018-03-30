@@ -300,7 +300,8 @@ void loop() {
           Serial.println("FLOW_RATE="+String(Flow_rate)+" L/min");
           Serial.println("WATER_VOLUME="+String(waterFlow)+" mL");
         }
-        current_state = DATA_TRANSMISSION;
+        current_state = INITIAL_STATE;//DATA_TRANSMISSION;
+        Serial.println("");
       }
       // Keep track of old times and water volumes to compute the flow rate
       // Also use these in the data transmission so that it is the same as what's printed in DEBUG

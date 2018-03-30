@@ -11,7 +11,7 @@
 
 // Code to use SoftwareSerial
 #include <SoftwareSerial.h>
-SoftwareSerial espSerial =  SoftwareSerial(3,4);      // arduino RX pin=2  arduino TX pin=3    connect the arduino RX pin to esp8266 module TX pin   -  connect the arduino TX pin to esp8266 module RX pin
+SoftwareSerial espSerial =  SoftwareSerial(4,5);      // arduino RX pin=2  arduino TX pin=3    connect the arduino RX pin to esp8266 module TX pin   -  connect the arduino TX pin to esp8266 module RX pin
 
 
 
